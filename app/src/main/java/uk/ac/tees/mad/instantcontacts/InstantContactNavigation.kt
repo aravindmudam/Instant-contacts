@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import uk.ac.tees.mad.instantcontacts.ui.LoginScreen
 import uk.ac.tees.mad.instantcontacts.ui.SplashScreen
 
 @Composable
@@ -19,7 +20,7 @@ fun InstantContactNavigation(
             SplashScreen(navController)
         }
         composable(route = Screen.Login.route) {
-
+            LoginScreen(navController = navController)
         }
         composable(route = Screen.Register.route) {
 

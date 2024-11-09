@@ -21,5 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Instant Contacts"
 include(":app")
-include(":app")
- 
