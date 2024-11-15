@@ -3,7 +3,6 @@ package uk.ac.tees.mad.instantcontacts.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -11,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -20,7 +20,8 @@ import androidx.navigation.NavHostController
 import uk.ac.tees.mad.instantcontacts.Screen
 
 @Composable
-fun LoginScreen(navController: NavHostController) {
+fun RegisterScreen(navController: NavHostController) {
+    var name by remember { mutableStateOf(TextFieldValue("")) }
     var email by remember { mutableStateOf(TextFieldValue("")) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
 
@@ -38,24 +39,24 @@ fun LoginScreen(navController: NavHostController) {
         ) {
 
             Text(
-                text = "Welcome Back!",
+                text = "Create Your Account",
                 style = MaterialTheme.typography.headlineLarge.copy(fontSize = 32.sp),
                 color = Color.Black
             )
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Log in to your account",
+                text = "Join us and stay connected!",
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp),
                 color = Color.Gray
             )
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Email Input
+
             OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") },
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Full Name") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(
@@ -65,23 +66,37 @@ fun LoginScreen(navController: NavHostController) {
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Password Input
+
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Next,
+                    keyboardType = KeyboardType.Email
+                ),
+                shape = MaterialTheme.shapes.medium
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Password") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Done
                 ),
-                shape = MaterialTheme.shapes.medium
-
+                shape = MaterialTheme.shapes.medium,
+                visualTransformation = PasswordVisualTransformation(),
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Login Button
+
             Button(
                 onClick = {
 //                    navController.navigate(Screen.Home.route)
@@ -91,18 +106,17 @@ fun LoginScreen(navController: NavHostController) {
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = MaterialTheme.shapes.medium
-
             ) {
-                Text("Log In", color = Color.White)
+                Text("Register", color = Color.White)
             }
             Spacer(modifier = Modifier.height(16.dp))
 
 
             Text(
-                text = "Don't have an account? Register",
+                text = "Already have an account? Log In",
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
-                    .clickable { navController.navigate(Screen.Register.route) }
+                    .clickable { navController.navigate(Screen.Login.route) }
                     .padding(vertical = 16.dp)
             )
         }
