@@ -13,17 +13,20 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import uk.ac.tees.mad.instantcontacts.Screen
+import uk.ac.tees.mad.instantcontacts.domain.AuthState
+import uk.ac.tees.mad.instantcontacts.ui.viemodel.AuthViewModel
 
 @Composable
-fun RegisterScreen(navController: NavHostController) {
+fun RegisterScreen(navController: NavHostController, authViewModel: AuthViewModel = viewModel()) {
     var name by remember { mutableStateOf(TextFieldValue("")) }
     var email by remember { mutableStateOf(TextFieldValue("")) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
+    val registerState by authViewModel.registerState.collectAsState()
 
     Box(
         modifier = Modifier
@@ -37,7 +40,6 @@ fun RegisterScreen(navController: NavHostController) {
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-
             Text(
                 text = "Create Your Account",
                 style = MaterialTheme.typography.headlineLarge.copy(fontSize = 32.sp),
@@ -52,7 +54,6 @@ fun RegisterScreen(navController: NavHostController) {
             )
             Spacer(modifier = Modifier.height(32.dp))
 
-
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
@@ -65,7 +66,6 @@ fun RegisterScreen(navController: NavHostController) {
                 shape = MaterialTheme.shapes.medium
             )
             Spacer(modifier = Modifier.height(16.dp))
-
 
             OutlinedTextField(
                 value = email,
@@ -81,7 +81,6 @@ fun RegisterScreen(navController: NavHostController) {
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -96,10 +95,9 @@ fun RegisterScreen(navController: NavHostController) {
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-
             Button(
                 onClick = {
-//                    navController.navigate(Screen.Home.route)
+                    authViewModel.register(name.text, email.text, password.text)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -111,7 +109,6 @@ fun RegisterScreen(navController: NavHostController) {
             }
             Spacer(modifier = Modifier.height(16.dp))
 
-
             Text(
                 text = "Already have an account? Log In",
                 color = MaterialTheme.colorScheme.primary,
@@ -119,6 +116,27 @@ fun RegisterScreen(navController: NavHostController) {
                     .clickable { navController.navigate(Screen.Login.route) }
                     .padding(vertical = 16.dp)
             )
+            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                when (registerState) {
+                    is AuthState.Loading -> {
+                        CircularProgressIndicator()
+                    }
+
+                    is AuthState.Success -> {
+                        Text("Registration Successful!", color = Color.Green)
+                        navController.navigate(Screen.Home.route)
+                    }
+
+                    is AuthState.Error -> {
+                        Text(
+                            "Registration Failed: ${(registerState as AuthState.Error).exception.message}",
+                            color = Color.Red
+                        )
+                    }
+
+                    else -> {}
+                }
+            }
         }
     }
 }
