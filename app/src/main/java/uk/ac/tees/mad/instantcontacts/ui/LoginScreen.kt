@@ -3,7 +3,6 @@ package uk.ac.tees.mad.instantcontacts.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,16 +12,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import uk.ac.tees.mad.instantcontacts.Screen
+import uk.ac.tees.mad.instantcontacts.domain.AuthState
+import uk.ac.tees.mad.instantcontacts.ui.viemodel.AuthViewModel
 
 @Composable
-fun LoginScreen(navController: NavHostController) {
+fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel = viewModel()) {
     var email by remember { mutableStateOf(TextFieldValue("")) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
+    val loginState by authViewModel.loginState.collectAsState()
 
     Box(
         modifier = Modifier
@@ -36,7 +38,6 @@ fun LoginScreen(navController: NavHostController) {
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-
             Text(
                 text = "Welcome Back!",
                 style = MaterialTheme.typography.headlineLarge.copy(fontSize = 32.sp),
@@ -51,7 +52,6 @@ fun LoginScreen(navController: NavHostController) {
             )
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Email Input
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -65,7 +65,6 @@ fun LoginScreen(navController: NavHostController) {
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Password Input
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -77,26 +76,29 @@ fun LoginScreen(navController: NavHostController) {
                     imeAction = ImeAction.Done
                 ),
                 shape = MaterialTheme.shapes.medium
-
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Login Button
             Button(
                 onClick = {
-//                    navController.navigate(Screen.Home.route)
+                    authViewModel.login(email.text, password.text)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = MaterialTheme.shapes.medium
-
             ) {
+                if (loginState is AuthState.Loading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White
+                    )
+                }
+                i
                 Text("Log In", color = Color.White)
             }
             Spacer(modifier = Modifier.height(16.dp))
-
 
             Text(
                 text = "Don't have an account? Register",
@@ -105,6 +107,28 @@ fun LoginScreen(navController: NavHostController) {
                     .clickable { navController.navigate(Screen.Register.route) }
                     .padding(vertical = 16.dp)
             )
+
+            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                when (loginState) {
+                    is AuthState.Loading -> {
+                        CircularProgressIndicator()
+                    }
+
+                    is AuthState.Success -> {
+                        Text("Login Successful!", color = Color.Green)
+                        navController.navigate(Screen.Home.route)
+                    }
+
+                    is AuthState.Error -> {
+                        Text(
+                            "Login Failed: ${(loginState as AuthState.Error).exception.message}",
+                            color = Color.Red
+                        )
+                    }
+
+                    else -> {}
+                }
+            }
         }
     }
 }
