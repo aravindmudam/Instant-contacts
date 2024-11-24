@@ -6,33 +6,33 @@ import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import uk.ac.tees.mad.instantcontacts.domain.AuthState
+import uk.ac.tees.mad.instantcontacts.domain.Resource
 import uk.ac.tees.mad.instantcontacts.repository.AuthRepository
 
 class AuthViewModel : ViewModel() {
     private val authRepository = AuthRepository()
 
-    private val _registerState = MutableStateFlow<AuthState<FirebaseUser>>(AuthState.Idle)
+    private val _registerState = MutableStateFlow<Resource<FirebaseUser>>(Resource.Idle)
     val registerState = _registerState.asStateFlow()
 
-    private val _loginState = MutableStateFlow<AuthState<FirebaseUser>>(AuthState.Idle)
+    private val _loginState = MutableStateFlow<Resource<FirebaseUser>>(Resource.Idle)
     val loginState = _loginState.asStateFlow()
 
     fun register(name: String, email: String, password: String) {
         viewModelScope.launch {
             authRepository.register(name, email, password).collect { result ->
                 when (result) {
-                    is AuthState.Error -> {
-                        _registerState.value = AuthState.Error(result.exception)
+                    is Resource.Error -> {
+                        _registerState.value = Resource.Error(result.exception)
                     }
-                    AuthState.Loading -> {
-                        _registerState.value = AuthState.Loading
+                    Resource.Loading -> {
+                        _registerState.value = Resource.Loading
                     }
-                    is AuthState.Success -> {
-                        _registerState.value = AuthState.Success(result.data)
+                    is Resource.Success -> {
+                        _registerState.value = Resource.Success(result.data)
                     }
 
-                    AuthState.Idle -> {
+                    Resource.Idle -> {
 
                     }
                 }
@@ -44,17 +44,17 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             authRepository.login(email, password).collect { result ->
                 when (result) {
-                    is AuthState.Error -> {
-                        _loginState.value = AuthState.Error(result.exception)
+                    is Resource.Error -> {
+                        _loginState.value = Resource.Error(result.exception)
                     }
-                    AuthState.Loading -> {
-                        _loginState.value = AuthState.Loading
+                    Resource.Loading -> {
+                        _loginState.value = Resource.Loading
                     }
-                    is AuthState.Success -> {
-                        _loginState.value = AuthState.Success(result.data)
+                    is Resource.Success -> {
+                        _loginState.value = Resource.Success(result.data)
                     }
 
-                    AuthState.Idle -> {
+                    Resource.Idle -> {
 
                     }
                 }

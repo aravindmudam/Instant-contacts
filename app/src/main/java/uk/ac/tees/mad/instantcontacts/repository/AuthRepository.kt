@@ -7,7 +7,7 @@ import com.google.firebase.auth.auth
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
-import uk.ac.tees.mad.instantcontacts.domain.AuthState
+import uk.ac.tees.mad.instantcontacts.domain.Resource
 
 class AuthRepository {
     private val auth = Firebase.auth
@@ -16,14 +16,14 @@ class AuthRepository {
         name: String,
         email: String,
         password: String
-    ): Flow<AuthState<FirebaseUser>> = callbackFlow {
-        trySend(AuthState.Loading)
+    ): Flow<Resource<FirebaseUser>> = callbackFlow {
+        trySend(Resource.Loading)
         try {
             val user = auth.createUserWithEmailAndPassword(email, password).await().user
             user?.updateProfile(UserProfileChangeRequest.Builder().setDisplayName(name).build())?.await()
-            trySend(AuthState.Success(user!!))
+            trySend(Resource.Success(user!!))
         } catch (e: Exception) {
-            trySend(AuthState.Error(e))
+            trySend(Resource.Error(e))
         }
         close()
     }
@@ -31,13 +31,13 @@ class AuthRepository {
     fun login(
         email: String,
         password: String
-    ): Flow<AuthState<FirebaseUser>> = callbackFlow {
-        trySend(AuthState.Loading)
+    ): Flow<Resource<FirebaseUser>> = callbackFlow {
+        trySend(Resource.Loading)
         try {
             val user = auth.signInWithEmailAndPassword(email, password).await().user
-            trySend(AuthState.Success(user!!))
+            trySend(Resource.Success(user!!))
         } catch (e: Exception) {
-            trySend(AuthState.Error(e))
+            trySend(Resource.Error(e))
         }
         close()
     }

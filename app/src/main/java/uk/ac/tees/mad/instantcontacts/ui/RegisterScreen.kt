@@ -13,12 +13,13 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import uk.ac.tees.mad.instantcontacts.Screen
-import uk.ac.tees.mad.instantcontacts.domain.AuthState
+import uk.ac.tees.mad.instantcontacts.domain.Resource
 import uk.ac.tees.mad.instantcontacts.ui.viemodel.AuthViewModel
 
 @Composable
@@ -37,106 +38,121 @@ fun RegisterScreen(navController: NavHostController, authViewModel: AuthViewMode
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = "Create Your Account",
-                style = MaterialTheme.typography.headlineLarge.copy(fontSize = 32.sp),
-                color = Color.Black
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "Join us and stay connected!",
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp),
-                color = Color.Gray
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Full Name") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Next
-                ),
-                shape = MaterialTheme.shapes.medium
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Next,
-                    keyboardType = KeyboardType.Email
-                ),
-                shape = MaterialTheme.shapes.medium
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Done
-                ),
-                shape = MaterialTheme.shapes.medium,
-                visualTransformation = PasswordVisualTransformation(),
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    authViewModel.register(name.text, email.text, password.text)
-                },
-                modifier = Modifier
+            Column(
+                Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                shape = MaterialTheme.shapes.medium
+                    .weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Text("Register", color = Color.White)
-            }
-            Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Create Your Account",
+                    style = MaterialTheme.typography.headlineLarge.copy(fontSize = 32.sp),
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                text = "Already have an account? Log In",
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .clickable { navController.navigate(Screen.Login.route) }
-                    .padding(vertical = 16.dp)
-            )
-            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                when (registerState) {
-                    is AuthState.Loading -> {
-                        CircularProgressIndicator()
-                    }
+                Text(
+                    text = "Join us and stay connected!",
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp),
+                    color = Color.Gray
+                )
+                Spacer(modifier = Modifier.height(32.dp))
 
-                    is AuthState.Success -> {
-                        Text("Registration Successful!", color = Color.Green)
-                        navController.navigate(Screen.Home.route)
-                    }
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Full Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Next
+                    ),
+                    shape = MaterialTheme.shapes.medium
+                )
+                Spacer(modifier = Modifier.height(16.dp))
 
-                    is AuthState.Error -> {
-                        Text(
-                            "Registration Failed: ${(registerState as AuthState.Error).exception.message}",
-                            color = Color.Red
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Next,
+                        keyboardType = KeyboardType.Email
+                    ),
+                    shape = MaterialTheme.shapes.medium
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done
+                    ),
+                    shape = MaterialTheme.shapes.medium,
+                    visualTransformation = PasswordVisualTransformation(),
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        authViewModel.register(name.text, email.text, password.text)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    if (registerState is Resource.Loading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.White
                         )
                     }
-
-                    else -> {}
+                    if (registerState is Resource.Idle) {
+                        Text("Register", color = Color.White)
+                    }
                 }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Already have an account? Log In",
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .clickable { navController.navigate(Screen.Login.route) }
+                        .padding(vertical = 16.dp)
+                )
             }
+            when (registerState) {
+
+
+                is Resource.Success -> {
+                    Text("Registration Successful!", color = Color.Green)
+                    navController.navigate(Screen.Home.route)
+                }
+
+                is Resource.Error -> {
+                    Text(
+                        "Registration Failed: ${(registerState as Resource.Error).exception.message}",
+                        color = Color.Red,
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                else -> {}
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+
+
         }
     }
 }
