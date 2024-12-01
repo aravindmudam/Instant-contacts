@@ -1,4 +1,4 @@
-package uk.ac.tees.mad.instantcontacts.ui.viemodel
+package uk.ac.tees.mad.instantcontacts.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

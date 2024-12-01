@@ -19,6 +19,10 @@ import androidx.navigation.NavHostController
 import androidx.compose.runtime.LaunchedEffect
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import uk.ac.tees.mad.instantcontacts.R
 import uk.ac.tees.mad.instantcontacts.Screen
 
@@ -29,9 +33,12 @@ fun SplashScreen(navController: NavHostController) {
 
 
     LaunchedEffect(Unit) {
+        val isLoggedIn = Firebase.auth.currentUser != null
         delay(3000)
-        navController.navigate(Screen.Login.route) {
-            popUpTo(Screen.Splash.route) { inclusive = true }
+        launch(Dispatchers.Main) {
+            navController.navigate(if (isLoggedIn) Screen.Home.route else Screen.Login.route) {
+                popUpTo(Screen.Splash.route) { inclusive = true }
+            }
         }
     }
 

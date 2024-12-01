@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import uk.ac.tees.mad.instantcontacts.ui.AddEditContactScreen
 import uk.ac.tees.mad.instantcontacts.ui.HomeScreen
 import uk.ac.tees.mad.instantcontacts.ui.LoginScreen
 import uk.ac.tees.mad.instantcontacts.ui.RegisterScreen
@@ -31,7 +32,7 @@ fun InstantContactNavigation(
             HomeScreen(navController = navController)
         }
         composable(route = Screen.AddContact.route) {
-
+            AddEditContactScreen(navController = navController)
         }
 
         composable(route = Screen.ContactDetail.route) {

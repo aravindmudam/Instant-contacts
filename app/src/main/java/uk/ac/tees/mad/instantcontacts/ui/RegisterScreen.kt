@@ -20,7 +20,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import uk.ac.tees.mad.instantcontacts.Screen
 import uk.ac.tees.mad.instantcontacts.domain.Resource
-import uk.ac.tees.mad.instantcontacts.ui.viemodel.AuthViewModel
+import uk.ac.tees.mad.instantcontacts.ui.viewmodel.AuthViewModel
 
 @Composable
 fun RegisterScreen(navController: NavHostController, authViewModel: AuthViewModel = viewModel()) {

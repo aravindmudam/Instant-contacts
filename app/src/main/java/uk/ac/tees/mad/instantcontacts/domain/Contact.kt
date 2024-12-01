@@ -5,8 +5,9 @@ data class Contact(
     val name: String,
     val phone: String,
     val email: String? = null,
-    val imageUrl: String? = null,
-    val medicalInfo: String? = null,
+    var userId: String? = null,
+    var imageUrl: String? = null,
+    val notes: String? = null,
     val callHistory: List<Call> = emptyList()
 )
 
