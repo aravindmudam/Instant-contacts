@@ -183,7 +183,8 @@ fun AddEditContactScreen(
                                 phone = phone,
                                 email = email,
                                 imageUrl = imageUri?.toString(),
-                                notes = notes
+                                notes = notes,
+                                relationship = relationship
                             )
                             if (existingContact != null) {
                                 contactViewModel.updateContact(contact, imageUri)

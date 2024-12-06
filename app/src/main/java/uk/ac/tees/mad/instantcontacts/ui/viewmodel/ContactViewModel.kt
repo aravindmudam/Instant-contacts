@@ -97,4 +97,10 @@ class ContactViewModel : ViewModel() {
             }
         }
     }
+
+    fun addCallHistory(id: String, phone: String) {
+        viewModelScope.launch {
+            // TODO: To be implemented
+        }
+    }
 }

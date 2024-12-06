@@ -8,6 +8,7 @@ data class Contact(
     var userId: String? = null,
     var imageUrl: String? = null,
     val notes: String? = null,
+    val relationship: String? = null,
     val callHistory: List<Call> = emptyList()
 )
 

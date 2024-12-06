@@ -19,10 +19,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowOutward
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.ShareLocation
@@ -36,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,7 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import uk.ac.tees.mad.instantcontacts.domain.Contact
 import uk.ac.tees.mad.instantcontacts.domain.Resource
 import uk.ac.tees.mad.instantcontacts.ui.viewmodel.ContactViewModel
 
@@ -63,6 +65,10 @@ fun ContactDetailsScreen(
 ) {
     val contactState = contactViewModel.contactState.collectAsState().value
     val isExpanded = remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = contactId) {
+        contactViewModel.fetchContactById(contactId)
+    }
 
     Scaffold(
         topBar = {
@@ -129,8 +135,7 @@ fun ContactDetailsScreen(
 
                         // Action Buttons
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             ActionButton(
                                 icon = Icons.Default.Phone,
@@ -140,7 +145,8 @@ fun ContactDetailsScreen(
                                         data = Uri.parse("tel:${contact.phone}")
                                     }
                                     context.startActivity(intent)
-                                }
+                                },
+                                modifier = Modifier.weight(1f)
                             )
                             ActionButton(
                                 icon = Icons.Default.Message,
@@ -150,18 +156,20 @@ fun ContactDetailsScreen(
                                         data = Uri.parse("smsto:${contact.phone}")
                                     }
                                     context.startActivity(intent)
-                                }
+                                },
+                                modifier = Modifier.weight(1f)
                             )
                             ActionButton(
                                 icon = Icons.Default.ShareLocation,
                                 label = "Share Location",
                                 onClick = {
-                                    val gmmIntentUri = Uri.parse("geo:0,0?q=My+current+location")
+                                    val gmmIntentUri = Uri.parse("geo:0,0?q=current+location")
                                     val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
                                         setPackage("com.google.android.apps.maps")
                                     }
                                     context.startActivity(mapIntent)
-                                }
+                                },
+                                modifier = Modifier.weight(1f)
                             )
                         }
 
@@ -195,9 +203,34 @@ fun ContactDetailsScreen(
                             }
                         }
 
-                        // Show More/Less Button
-                        TextButton(onClick = { isExpanded.value = !isExpanded.value }) {
-                            Text(text = if (isExpanded.value) "Show Less" else "Show More")
+
+                        Column {
+                            Row {
+                                Text(
+                                    text = "Call History",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                TextButton(onClick = { isExpanded.value = !isExpanded.value }) {
+                                    Text(text = if (isExpanded.value) "Show Less" else "Show More")
+                                }
+                            }
+                            if (isExpanded.value) {
+                                contact.callHistory.slice(0..3)
+                                    .forEach { call ->
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+
+                                            Icon(
+                                                imageVector = Icons.Default.ArrowOutward,
+                                                contentDescription = null
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(text = call.timestamp)
+                                        }
+                                    }
+                            }
                         }
                     }
                 }
@@ -207,10 +240,15 @@ fun ContactDetailsScreen(
 }
 
 @Composable
-fun ActionButton(icon: ImageVector, label: String, onClick: () -> Unit) {
+fun ActionButton(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable(onClick = onClick)
+        modifier = modifier.clickable(onClick = onClick)
     ) {
         Icon(
             imageVector = icon,

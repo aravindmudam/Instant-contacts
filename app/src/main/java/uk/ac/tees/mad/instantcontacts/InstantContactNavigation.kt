@@ -2,9 +2,12 @@ package uk.ac.tees.mad.instantcontacts
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import uk.ac.tees.mad.instantcontacts.ui.AddEditContactScreen
+import uk.ac.tees.mad.instantcontacts.ui.ContactDetailsScreen
 import uk.ac.tees.mad.instantcontacts.ui.HomeScreen
 import uk.ac.tees.mad.instantcontacts.ui.LoginScreen
 import uk.ac.tees.mad.instantcontacts.ui.RegisterScreen
@@ -35,8 +38,13 @@ fun InstantContactNavigation(
             AddEditContactScreen(navController = navController)
         }
 
-        composable(route = Screen.ContactDetail.route) {
-
+        composable(
+            route = Screen.ContactDetail.route + "/{contactId}",
+            arguments = listOf(navArgument("contactId") { type = NavType.StringType })
+        ) {
+            val contactId = navController.currentBackStackEntry?.arguments?.getString("contactId")
+                ?: return@composable
+            ContactDetailsScreen(navController = navController, contactId = contactId)
         }
         composable(route = Screen.Profile.route) {
 
@@ -50,7 +58,7 @@ sealed class Screen(val route: String) {
     object Register : Screen("register")
     object Home : Screen("home")
     object ContactDetail : Screen("contact_detail")
-    object AddContact: Screen("add_contact")
+    object AddContact : Screen("add_contact")
     object Profile : Screen("profile")
 }
 

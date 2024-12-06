@@ -36,6 +36,7 @@ class ContactRepository {
                         email = doc.getString("email"),
                         imageUrl = doc.getString("imageUrl"),
                         notes = doc.getString("notes"),
+                        relationship = doc.getString("relationship"),
                         callHistory = doc.get("callHistory") as? List<Call> ?: emptyList()
                     )
                 } ?: emptyList()
@@ -58,6 +59,7 @@ class ContactRepository {
                         phone = doc["phone"] as? String ?: "",
                         email = doc["email"] as? String,
                         imageUrl = doc["imageUrl"] as? String,
+                        relationship = doc["relationship"] as? String,
                         notes = doc["notes"] as? String,
                         callHistory = doc["callHistory"] as? List<Call> ?: emptyList()
                     )

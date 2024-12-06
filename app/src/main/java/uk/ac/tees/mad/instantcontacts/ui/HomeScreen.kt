@@ -110,12 +110,13 @@ fun HomeScreen(navController: NavHostController, contactViewModel: ContactViewMo
                             ) {
                                 items(contacts) { contact ->
                                     ContactItem(contact = contact, onClick = {
-//                                        navController.navigate("${Screen.ContactDetail.route}/${contact.id}")
+                                        navController.navigate("${Screen.ContactDetail.route}/${contact.id}")
                                     }, onCallClick = {
                                         Log.d("ONNNN", "on call invoked")
                                         val intent = Intent(Intent.ACTION_DIAL)
                                         intent.data = Uri.parse("tel:${contact.phone}")
                                         context.startActivity(intent)
+                                        contactViewModel.addCallHistory(contact.id, contact.phone)
                                     })
                                 }
                             }
