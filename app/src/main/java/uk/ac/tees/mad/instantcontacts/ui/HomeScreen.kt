@@ -48,6 +48,9 @@ import uk.ac.tees.mad.instantcontacts.Screen
 import uk.ac.tees.mad.instantcontacts.domain.Contact
 import uk.ac.tees.mad.instantcontacts.domain.Resource
 import uk.ac.tees.mad.instantcontacts.ui.viewmodel.ContactViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.roundToInt
 
 @Composable
@@ -109,15 +112,31 @@ fun HomeScreen(navController: NavHostController, contactViewModel: ContactViewMo
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 items(contacts) { contact ->
-                                    ContactItem(contact = contact, onClick = {
-                                        navController.navigate("${Screen.ContactDetail.route}/${contact.id}")
-                                    }, onCallClick = {
-                                        Log.d("ONNNN", "on call invoked")
-                                        val intent = Intent(Intent.ACTION_DIAL)
-                                        intent.data = Uri.parse("tel:${contact.phone}")
-                                        context.startActivity(intent)
-                                        contactViewModel.addCallHistory(contact.id, contact.phone)
-                                    })
+                                    ContactItem(
+                                        contact = contact, onClick = {
+                                            navController.navigate("${Screen.ContactDetail.route}/${contact.id}")
+                                        },
+                                        onCallClick = {
+                                            Log.d("ONNNN", "on call invoked")
+                                            val intent = Intent(Intent.ACTION_DIAL)
+                                            intent.data = Uri.parse("tel:${contact.phone}")
+                                            context.startActivity(intent)
+                                            contactViewModel.updateContact(
+                                                contact.copy(
+                                                    callHistory = contact.callHistory.plus(
+                                                        uk.ac.tees.mad.instantcontacts.domain.Call(
+                                                            timestamp = SimpleDateFormat(
+                                                                "dd MMM yyyy, hh:mm a",
+                                                                Locale.getDefault()
+                                                            ).format(Date(System.currentTimeMillis())),
+                                                            duration = 0
+                                                        )
+                                                    )
+                                                ),
+                                                imageUri = null
+                                            )
+                                        }
+                                    )
                                 }
                             }
                         }

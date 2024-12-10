@@ -36,6 +36,7 @@ class ContactRepository {
                         email = doc.getString("email"),
                         imageUrl = doc.getString("imageUrl"),
                         notes = doc.getString("notes"),
+                        userId = doc.getString("userId"),
                         relationship = doc.getString("relationship"),
                         callHistory = doc.get("callHistory") as? List<Call> ?: emptyList()
                     )
@@ -53,15 +54,23 @@ class ContactRepository {
             .addOnSuccessListener { result ->
                 val doc = result.data
                 if (doc != null) {
+                    val callHistory = (doc["callHistory"] as? List<HashMap<String, Any>>)?.map { map ->
+                        Call(
+                            timestamp = map["timestamp"] as? String ?: "",
+                            duration = (map["duration"] as? Long) ?: 0L
+                        )
+                    } ?: emptyList()
+
                     val contact = Contact(
                         id = result.id,
                         name = doc["name"] as? String ?: "",
                         phone = doc["phone"] as? String ?: "",
                         email = doc["email"] as? String,
                         imageUrl = doc["imageUrl"] as? String,
+                        userId = doc["userId"] as? String,
                         relationship = doc["relationship"] as? String,
                         notes = doc["notes"] as? String,
-                        callHistory = doc["callHistory"] as? List<Call> ?: emptyList()
+                        callHistory = callHistory
                     )
                     trySend(Resource.Success(contact))
                 } else {
@@ -94,6 +103,19 @@ class ContactRepository {
         firestore.collection("contacts").document(contact.id).set(contact)
             .addOnSuccessListener {
                 trySend(Resource.Success("Contact updated."))
+            }
+            .addOnFailureListener { e ->
+                trySend(Resource.Error(e))
+            }
+
+        awaitClose { close() }
+    }
+
+    fun deleteContact(contactId: String): Flow<Resource<String>> = callbackFlow {
+        trySend(Resource.Loading)
+        firestore.collection("contacts").document(contactId).delete()
+            .addOnSuccessListener {
+                trySend(Resource.Success("Contact deleted successfully."))
             }
             .addOnFailureListener { e ->
                 trySend(Resource.Error(e))

@@ -41,12 +41,24 @@ class ContactViewModel : ViewModel() {
         }
     }
 
+    private val _deleteState = MutableStateFlow<Resource<String>>(Resource.Idle)
+    val deleteState = _deleteState.asStateFlow()
+
+    fun deleteContact(contact: Contact) {
+        viewModelScope.launch {
+            contactRepository.deleteContact(contact.id).collect { resource ->
+                _deleteState.value = resource
+            }
+        }
+    }
+
     fun addContact(contact: Contact, imageUri: Uri?) {
         viewModelScope.launch {
             if (imageUri != null) {
                 contactRepository.uploadImage(imageUri).collect { resource ->
                     when (resource) {
                         is Resource.Success -> {
+                            contact.userId = Firebase.auth.currentUser?.uid ?: "uid"
                             contact.imageUrl = resource.data
                             contactRepository.addContact(contact).collect { addResource ->
                                 _addUpdateState.value = addResource
@@ -70,6 +82,7 @@ class ContactViewModel : ViewModel() {
             }
         }
     }
+
 
     fun updateContact(contact: Contact, imageUri: Uri?) {
         viewModelScope.launch {
@@ -95,12 +108,6 @@ class ContactViewModel : ViewModel() {
                     _addUpdateState.value = resource
                 }
             }
-        }
-    }
-
-    fun addCallHistory(id: String, phone: String) {
-        viewModelScope.launch {
-            // TODO: To be implemented
         }
     }
 }
