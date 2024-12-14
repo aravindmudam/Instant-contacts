@@ -8,8 +8,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import uk.ac.tees.mad.instantcontacts.ui.AddEditContactScreen
 import uk.ac.tees.mad.instantcontacts.ui.ContactDetailsScreen
+import uk.ac.tees.mad.instantcontacts.ui.EditProfileScreen
 import uk.ac.tees.mad.instantcontacts.ui.HomeScreen
 import uk.ac.tees.mad.instantcontacts.ui.LoginScreen
+import uk.ac.tees.mad.instantcontacts.ui.ProfileScreen
 import uk.ac.tees.mad.instantcontacts.ui.RegisterScreen
 import uk.ac.tees.mad.instantcontacts.ui.SplashScreen
 
@@ -47,7 +49,10 @@ fun InstantContactNavigation(
             ContactDetailsScreen(navController = navController, contactId = contactId)
         }
         composable(route = Screen.Profile.route) {
-
+            ProfileScreen(navController = navController)
+        }
+        composable(route = Screen.EditProfile.route) {
+            EditProfileScreen(navController = navController)
         }
     }
 }
@@ -60,5 +65,6 @@ sealed class Screen(val route: String) {
     object ContactDetail : Screen("contact_detail")
     object AddContact : Screen("add_contact")
     object Profile : Screen("profile")
+    object EditProfile : Screen("edit_profile")
 }
 

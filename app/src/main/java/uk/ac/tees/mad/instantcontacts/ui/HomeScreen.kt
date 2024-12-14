@@ -41,6 +41,8 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.instantcontacts.R
@@ -155,12 +157,12 @@ fun HomeScreen(navController: NavHostController, contactViewModel: ContactViewMo
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.weight(1f))
                 TextButton(onClick = {
                     navController.navigate(Screen.Profile.route)
                 }) {
                     Text(
-                        "View Profile and Medical Information",
+                        "View Profile Information",
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
