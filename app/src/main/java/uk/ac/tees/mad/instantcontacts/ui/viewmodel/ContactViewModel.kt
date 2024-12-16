@@ -5,15 +5,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.instantcontacts.domain.Contact
 import uk.ac.tees.mad.instantcontacts.domain.Resource
 import uk.ac.tees.mad.instantcontacts.repository.ContactRepository
+import javax.inject.Inject
 
-class ContactViewModel : ViewModel() {
-    private val contactRepository = ContactRepository()
+@HiltViewModel
+class ContactViewModel @Inject constructor(
+    private val contactRepository: ContactRepository
+) : ViewModel() {
 
     private val _contactsState = MutableStateFlow<Resource<List<Contact>>>(Resource.Idle)
     val contactsState = _contactsState.asStateFlow()

@@ -1,5 +1,7 @@
 package uk.ac.tees.mad.instantcontacts.domain
 
+import java.io.Serializable
+
 data class Contact(
     val id: String,
     val name: String,
@@ -15,4 +17,4 @@ data class Contact(
 data class Call(
     val timestamp: String,
     val duration: Long,
-)
+): Serializable

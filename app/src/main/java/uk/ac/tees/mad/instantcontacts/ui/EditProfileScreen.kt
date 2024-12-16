@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.provider.MediaStore
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -55,6 +56,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -73,10 +75,11 @@ import java.io.File
 @Composable
 fun EditProfileScreen(
     navController: NavController,
-    profileViewModel: ProfileViewModel = viewModel()
+    profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val profileState by profileViewModel.profileState.collectAsState()
+    val updateProfileState by profileViewModel.updateProfileState.collectAsState()
     val nameState = remember { mutableStateOf("") }
     val emailState = remember { mutableStateOf("") }
     val phoneState = remember { mutableStateOf("") }
@@ -113,8 +116,36 @@ fun EditProfileScreen(
             val profile = (profileState as Resource.Success).data
             nameState.value = profile.name
             emailState.value = profile.email
+            phoneState.value = profile.phone
             imageUrlState.value = profile.profileImageUrl
         }
+    }
+
+    LaunchedEffect(key1 = updateProfileState) {
+        when (updateProfileState) {
+            is Resource.Error -> {
+                Toast.makeText(
+                    context,
+                    (updateProfileState as Resource.Error).exception.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            is Resource.Success -> {
+                Toast.makeText(
+                    context,
+                    "Saved",
+                    Toast.LENGTH_SHORT
+                ).show()
+                navController.popBackStack()
+            }
+
+            else -> Unit
+        }
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        profileViewModel.fetchUserProfile()
     }
 
     Scaffold(
@@ -173,7 +204,6 @@ fun EditProfileScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Profile Image
             Box(
                 modifier = Modifier
                     .size(120.dp)
@@ -181,14 +211,9 @@ fun EditProfileScreen(
                     .background(MaterialTheme.colorScheme.primary)
                     .border(2.dp, Color.White, CircleShape)
                     .clickable {
-                        // Open image picker
-                        val intent = Intent(
-                            Intent.ACTION_PICK,
-                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                        )
-                        val activity = context as Activity
-                        activity.startActivityForResult(intent, 1001)
-                    }
+                        showBottomSheet = true
+                    },
+                contentAlignment = Alignment.Center
             ) {
                 imageUriState.value?.let {
                     Image(
@@ -259,12 +284,47 @@ fun EditProfileScreen(
                         profileImageUrl = imageUrlState.value,
                         phone = phoneState.value
                     )
-                    profileViewModel.updateProfile(updatedProfile)
-                    navController.popBackStack()
+                    imageUriState.value?.let {
+
+                        coroutineScope.launch {
+                            profileViewModel.uploadProfileImage(imageUriState.value!!)
+                                .collect { imageUrl ->
+                                    when (imageUrl) {
+                                        is Resource.Error -> {
+                                            Toast.makeText(
+                                                context,
+                                                "Error uplaoding image",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+
+                                        Resource.Idle -> {
+
+                                        }
+
+                                        Resource.Loading -> {
+
+                                        }
+
+                                        is Resource.Success -> {
+                                            profileViewModel.updateProfile(
+                                                updatedProfile.copy(
+                                                    profileImageUrl = imageUrl.data
+                                                )
+                                            )
+                                        }
+                                    }
+                                }
+                        }
+                    } ?: profileViewModel.updateProfile(updatedProfile)
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Save")
+                if (updateProfileState is Resource.Loading) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+                } else {
+                    Text("Save")
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))

@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,10 +14,13 @@ import uk.ac.tees.mad.instantcontacts.domain.Resource
 import uk.ac.tees.mad.instantcontacts.domain.UserProfile
 import uk.ac.tees.mad.instantcontacts.repository.ContactRepository
 import uk.ac.tees.mad.instantcontacts.repository.ProfileRepository
+import javax.inject.Inject
 
-class ProfileViewModel() : ViewModel() {
-    private val profileRepository = ProfileRepository()
-    private val contactRepository = ContactRepository()
+@HiltViewModel
+class ProfileViewModel @Inject constructor(
+    private val profileRepository: ProfileRepository,
+    private val contactRepository: ContactRepository
+) : ViewModel() {
 
     private val _profileState = MutableStateFlow<Resource<UserProfile>>(Resource.Idle)
     val profileState = _profileState.asStateFlow()

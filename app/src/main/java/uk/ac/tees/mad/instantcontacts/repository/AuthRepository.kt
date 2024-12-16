@@ -1,18 +1,23 @@
 package uk.ac.tees.mad.instantcontacts.repository
 
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import uk.ac.tees.mad.instantcontacts.domain.Resource
+import javax.inject.Inject
 
-class AuthRepository {
-    private val auth = Firebase.auth
-    private val firestore = Firebase.firestore
+class AuthRepository @Inject constructor(
+    private val auth : FirebaseAuth,
+    private val firestore : FirebaseFirestore,
+
+) {
     private val userId = auth.currentUser?.uid ?: ""
 
     suspend fun register(

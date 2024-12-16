@@ -1,30 +1,49 @@
 package uk.ac.tees.mad.instantcontacts.repository
 
 import android.net.Uri
-import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import uk.ac.tees.mad.instantcontacts.domain.Resource
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import uk.ac.tees.mad.instantcontacts.data.ContactDao
 import uk.ac.tees.mad.instantcontacts.domain.Call
 import uk.ac.tees.mad.instantcontacts.domain.Contact
+import uk.ac.tees.mad.instantcontacts.domain.Resource
+import uk.ac.tees.mad.instantcontacts.domain.toContactEntity
 import java.util.UUID
+import javax.inject.Inject
 
-class ContactRepository {
-    private val firestore = FirebaseFirestore.getInstance()
-    private val storage = FirebaseStorage.getInstance()
+class ContactRepository @Inject constructor(
+    private val firestore: FirebaseFirestore,
+    private val storage: FirebaseStorage,
+    private val contactDao: ContactDao,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+) {
+
 
     fun getContacts(userId: String): Flow<Resource<List<Contact>>> = callbackFlow {
         trySend(Resource.Loading)
+
+        // First, fetch from local database
+        val cachedContacts = contactDao.getContacts(userId).map { entities ->
+            entities.map { it.toContact() }
+        }
+        trySend(Resource.Success(cachedContacts.first()))
+
+        // Then, listen for changes from Firestore
         val listenerRegistration = firestore.collection("contacts")
             .whereEqualTo("userId", userId)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     trySend(Resource.Error(error))
-                    close(error)
                     return@addSnapshotListener
                 }
 
@@ -38,28 +57,48 @@ class ContactRepository {
                         notes = doc.getString("notes"),
                         userId = doc.getString("userId"),
                         relationship = doc.getString("relationship"),
-                        callHistory = doc.get("callHistory") as? List<Call> ?: emptyList()
+                        callHistory = (doc["callHistory"] as? List<HashMap<String, Any>>)?.map { map ->
+                            Call(
+                                timestamp = map["timestamp"] as? String ?: "",
+                                duration = (map["duration"] as? Long) ?: 0L
+                            )
+                        } ?: emptyList()
                     )
                 } ?: emptyList()
+
+                CoroutineScope(ioDispatcher).launch {
+                    // Update the local cache with the latest data
+                    contactDao.insertContacts(contacts.map { it.toContactEntity() })
+                }
 
                 trySend(Resource.Success(contacts))
             }
 
         awaitClose { listenerRegistration.remove() }
-    }
+    }.flowOn(ioDispatcher)
+
 
     fun getContactById(id: String): Flow<Resource<Contact>> = callbackFlow {
         trySend(Resource.Loading)
+
+        // Launch a coroutine to handle database operations
+        CoroutineScope(ioDispatcher).launch {
+            val cachedContact = contactDao.getContactById(id).first()?.toContact()
+            cachedContact?.let { trySend(Resource.Success(it)) }
+        }
+
+        // Fetch from Firestore
         firestore.collection("contacts").document(id).get()
             .addOnSuccessListener { result ->
                 val doc = result.data
                 if (doc != null) {
-                    val callHistory = (doc["callHistory"] as? List<HashMap<String, Any>>)?.map { map ->
-                        Call(
-                            timestamp = map["timestamp"] as? String ?: "",
-                            duration = (map["duration"] as? Long) ?: 0L
-                        )
-                    } ?: emptyList()
+                    val callHistory =
+                        (doc["callHistory"] as? List<HashMap<String, Any>>)?.map { map ->
+                            Call(
+                                timestamp = map["timestamp"] as? String ?: "",
+                                duration = (map["duration"] as? Long) ?: 0L
+                            )
+                        } ?: emptyList()
 
                     val contact = Contact(
                         id = result.id,
@@ -72,6 +111,12 @@ class ContactRepository {
                         notes = doc["notes"] as? String,
                         callHistory = callHistory
                     )
+
+                    // Update the local cache with the latest data
+                    CoroutineScope(ioDispatcher).launch {
+                        contactDao.insertContact(contact.toContactEntity())
+                    }
+
                     trySend(Resource.Success(contact))
                 } else {
                     trySend(Resource.Error(Exception("Contact not found")))
@@ -115,6 +160,9 @@ class ContactRepository {
         trySend(Resource.Loading)
         firestore.collection("contacts").document(contactId).delete()
             .addOnSuccessListener {
+                CoroutineScope(ioDispatcher).launch {
+                    contactDao.deleteContactById(contactId)
+                }
                 trySend(Resource.Success("Contact deleted successfully."))
             }
             .addOnFailureListener { e ->

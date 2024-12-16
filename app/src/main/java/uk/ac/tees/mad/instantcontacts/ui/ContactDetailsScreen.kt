@@ -55,6 +55,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
@@ -66,7 +67,7 @@ import uk.ac.tees.mad.instantcontacts.ui.viewmodel.ContactViewModel
 fun ContactDetailsScreen(
     navController: NavHostController,
     contactId: String,
-    contactViewModel: ContactViewModel = viewModel(),
+    contactViewModel: ContactViewModel = hiltViewModel(),
     context: Context = LocalContext.current
 ) {
     val contactState = contactViewModel.contactState.collectAsState().value

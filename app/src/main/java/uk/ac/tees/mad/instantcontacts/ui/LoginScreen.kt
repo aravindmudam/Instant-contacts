@@ -15,6 +15,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import uk.ac.tees.mad.instantcontacts.Screen
@@ -22,7 +23,7 @@ import uk.ac.tees.mad.instantcontacts.domain.Resource
 import uk.ac.tees.mad.instantcontacts.ui.viewmodel.AuthViewModel
 
 @Composable
-fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel = viewModel()) {
+fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel = hiltViewModel()) {
     var email by remember { mutableStateOf(TextFieldValue("")) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
     val loginState by authViewModel.loginState.collectAsState()

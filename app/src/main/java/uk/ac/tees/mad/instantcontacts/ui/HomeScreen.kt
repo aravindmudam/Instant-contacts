@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
@@ -56,7 +57,7 @@ import java.util.Locale
 import kotlin.math.roundToInt
 
 @Composable
-fun HomeScreen(navController: NavHostController, contactViewModel: ContactViewModel = viewModel()) {
+fun HomeScreen(navController: NavHostController, contactViewModel: ContactViewModel = hiltViewModel()) {
     val contactsState by contactViewModel.contactsState.collectAsState()
     val context = LocalContext.current
 
