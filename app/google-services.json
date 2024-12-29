@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "89779777020",
-    "project_id": "instantcontacts-2a791",
+    "project_number": "99154573175",
+    "project_id": "instantcontacts-eb624",
     "storage_bucket": "instantcontacts-2a791.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:89779777020:android:69238382d59f9742931679",
+        "mobilesdk_app_id": "1:99154573175:android:2bf2dbe931935ee60f5372",
         "android_client_info": {
           "package_name": "uk.ac.tees.mad.instantcontacts"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBMNT2_iuAST9f6VCicISMXCrKtO3XqLSs"
+          "current_key": "AIzaSyAyISPQBkgT2d359hQWRsLWqhJkWmoCpDQ"
         }
       ],
       "services": {

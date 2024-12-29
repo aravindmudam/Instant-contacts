@@ -132,19 +132,42 @@ class ContactRepository @Inject constructor(
     fun addContact(contact: Contact): Flow<Resource<String>> = callbackFlow {
         trySend(Resource.Loading)
 
+        val contactEntity = contact.toContactEntity()
+        try {
+            contactDao.insertContact(contactEntity)
+        } catch (e: Exception) {
+            trySend(Resource.Error(e))
+            close(e)
+            return@callbackFlow
+        }
+
         firestore.collection("contacts").add(contact)
             .addOnSuccessListener {
                 trySend(Resource.Success("Contact added."))
             }
             .addOnFailureListener { e ->
+                CoroutineScope(ioDispatcher).launch {
+                    contactDao.deleteContactById(contactEntity.id)
+                }
                 trySend(Resource.Error(e))
             }
 
         awaitClose { close() }
     }
 
+
     fun updateContact(contact: Contact): Flow<Resource<String>> = callbackFlow {
         trySend(Resource.Loading)
+
+        val contactEntity = contact.toContactEntity()
+        try {
+            contactDao.insertContact(contactEntity)
+        } catch (e: Exception) {
+            trySend(Resource.Error(e))
+            close(e)
+            return@callbackFlow
+        }
+
         firestore.collection("contacts").document(contact.id).set(contact)
             .addOnSuccessListener {
                 trySend(Resource.Success("Contact updated."))
@@ -155,6 +178,7 @@ class ContactRepository @Inject constructor(
 
         awaitClose { close() }
     }
+
 
     fun deleteContact(contactId: String): Flow<Resource<String>> = callbackFlow {
         trySend(Resource.Loading)

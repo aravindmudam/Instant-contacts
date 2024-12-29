@@ -12,9 +12,7 @@ import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.LottieAnimation
 
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.airbnb.lottie.compose.rememberLottieAnimatable
 import kotlinx.coroutines.delay
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.compose.runtime.LaunchedEffect
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -30,7 +28,6 @@ import uk.ac.tees.mad.instantcontacts.Screen
 fun SplashScreen(navController: NavHostController) {
 
     val composition = rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.call))
-
 
     LaunchedEffect(Unit) {
         val isLoggedIn = Firebase.auth.currentUser != null
